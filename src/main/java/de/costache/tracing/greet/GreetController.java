@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
@@ -57,25 +58,27 @@ public class GreetController {
     }
 
     @RequestMapping("/greet")
-    public Greet get(@RequestParam(value = "name", defaultValue = "World") String name) {
+    public Greet get(@RequestParam(value = "name", defaultValue = "World") String name,
+                     @RequestParam(value = "delay", defaultValue = "100") long delay)
+            throws InterruptedException {
 
         logger.info("Incoming call. Processing...");
-        long count = getCount();
+        logger.info("Simulating some work...");
+        Thread.sleep(delay);
+        generateRandomError();
 
         if (feignClient != null) {
             logger.info("Using service as proxy and delegating the call");
-            return feignClient.greeting();
+            return feignClient.greet(name, delay);
         } else {
             logger.info("Proxy disabled, returning content directly", serviceUrl);
-            return new Greet(count, String.format(template, name));
+            return new Greet(UUID.randomUUID().toString(), String.format(template, name));
         }
     }
 
-    private long getCount() {
-        long value = counter.incrementAndGet();
+    private void generateRandomError() {
         if (Math.round(Math.random() * 10) % 5 == 0) {
             throw new RuntimeException("Random fail");
         }
-        return value;
     }
 }

@@ -2,15 +2,15 @@ package de.costache.tracing.greet;
 
 public class Greet {
 
-    private final long id;
+    private final String id;
     private final String text;
 
-    public Greet(long id, String text) {
+    public Greet(String id, String text) {
         this.id = id;
         this.text = text;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 

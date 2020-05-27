@@ -27,11 +27,11 @@ public class ApiErrorController extends ResponseEntityExceptionHandler {
     @ResponseBody
     public ResponseEntity<Object> handleAll(Exception ex, HttpServletRequest request) {
 
-        logger.error("Handling error and returning error message", ex);
+        logger.error("Handling error and returning error message: {}", ex.getMessage());
         return new ResponseEntity<Object>(
                 new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         String.format("Internal Server Error (traceId: %s)",
-                                tracer.currentSpan().toString())),
+                                tracer.currentSpan().toString()), ex.getClass().getCanonicalName(), ex.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
