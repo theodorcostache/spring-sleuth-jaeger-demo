@@ -13,11 +13,10 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:2.2.2.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.1.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:2.2.2.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:2.2.2.RELEASE'
-    implementation 'io.github.openfeign:feign-okhttp:10.4.0'
-    implementation 'io.github.openfeign:feign-httpclient:10.4.0'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.3.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:2.2.3.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:2.2.3.RELEASE'
+    implementation 'io.github.openfeign:feign-httpclient:11.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.2.2.RELEASE'
 }
 
