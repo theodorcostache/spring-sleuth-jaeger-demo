@@ -4,10 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.sleuth.annotation.ContinueSpan;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -16,7 +20,7 @@ public class GreetController {
     private static final String template = "Hello, %s!";
     private final Logger logger = LoggerFactory.getLogger(GreetController.class);
 
-    private GreetingProxy feignClient;
+    private RestTemplate restTemplate;
 
     @Value("${upstream.url}")
     private String serviceUrl;
@@ -25,12 +29,13 @@ public class GreetController {
     private String applicationName;
 
     @Autowired
-    public GreetController(GreetingProxy feignClient) {
-        this.feignClient = feignClient;
+    public GreetController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     @RequestMapping("/greet")
-    public Greet get(@RequestParam(value = "name", defaultValue = "World") String name,
+    @ContinueSpan(log="getGreet")
+    public Greet getGreet(@RequestParam(value = "name", defaultValue = "World") String name,
                      @RequestParam(value = "delay", defaultValue = "100") long delay,
                      @RequestParam(value = "failIn", defaultValue = "") String failIn)
             throws InterruptedException {
@@ -45,11 +50,20 @@ public class GreetController {
 
         if (serviceUrl != null) {
             logger.info("Using service as proxy and delegating the call");
-            return feignClient.greet(name, delay, failIn);
+            return callService(name, delay, failIn);
         } else {
-            logger.info("Proxy disabled, returning content directly");
+            logger.info("Not running as proxy, returning content directly");
             return new Greet(UUID.randomUUID().toString(), String.format(template, name));
         }
+    }
+
+    private Greet callService(String name, long delay, String failIn){
+        Map<String, String> params = new HashMap<>();
+        params.put("name", name);
+        params.put("delay", Long.toString(delay));
+        params.put("failIn", failIn);
+
+        return restTemplate.getForObject(serviceUrl + "/greet?name={name}&delay={delay}&failIn={failIn}", Greet.class, params);
     }
 
     private void methodThatFails() {

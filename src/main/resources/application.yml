@@ -1,31 +1,15 @@
-feign:
-  httpclient:
-    enabled: true
-  compression:
-    request:
-      enabled: true
-      mime-types:
-        - application/json
-      min-request-size: 2048
-    response:
-      enabled: true
-
 server:
   port: ${PORT:8080}
 
 spring:
   application:
     name: ${NAME:APP}
-  sleuth:
-    traceId128: true
-    feign:
-      enabled: false
-    ribbon:
-      enabled: false
   zipkin:
     base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
 
-logging:
   pattern:
     level: "[trace: %X{traceId}][%5p]"
 
