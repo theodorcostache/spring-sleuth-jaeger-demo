@@ -8,6 +8,7 @@ import org.springframework.cloud.sleuth.annotation.ContinueSpan;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -34,13 +35,11 @@ public class GreetController {
     }
 
     @RequestMapping("/greet")
-    @ContinueSpan(log="getGreet")
     public Greet getGreet(@RequestParam(value = "name", defaultValue = "World") String name,
                      @RequestParam(value = "delay", defaultValue = "100") long delay,
                      @RequestParam(value = "failIn", defaultValue = "") String failIn)
             throws InterruptedException {
 
-        logger.info("Incoming call. Processing...");
         logger.info("Simulating some work...");
         Thread.sleep(delay);
 
@@ -50,7 +49,12 @@ public class GreetController {
 
         if (serviceUrl != null) {
             logger.info("Using service as proxy and delegating the call");
-            return callService(name, delay, failIn);
+            try {
+                return callService(name, delay, failIn);
+            }catch(RestClientException ex) {
+                logger.error("Calling proxy failed. Handing over to error controller");
+                throw new RestClientException("Failed when calling proxy");
+            }
         } else {
             logger.info("Not running as proxy, returning content directly");
             return new Greet(UUID.randomUUID().toString(), String.format(template, name));
@@ -67,6 +71,7 @@ public class GreetController {
     }
 
     private void methodThatFails() {
+
         throw new RuntimeException("Random fail");
     }
 }

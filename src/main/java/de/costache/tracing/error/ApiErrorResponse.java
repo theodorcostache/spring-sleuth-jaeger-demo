@@ -1,13 +1,13 @@
 package de.costache.tracing.error;
 
-public class ApiError {
+public class ApiErrorResponse {
 
     private Integer code;
     private String message;
     private String errorClass;
     private String errorMessage;
 
-    public ApiError(Integer code, String message, String errorClass, String errorMessage) {
+    public ApiErrorResponse(Integer code, String message, String errorClass, String errorMessage) {
         this.code = code;
         this.message = message;
         this.errorClass = errorClass;
