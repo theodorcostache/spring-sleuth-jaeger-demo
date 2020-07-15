@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface GreetingProxy {
 
     @RequestMapping(method = RequestMethod.GET, value = "/greet")
-    Greet greet(@RequestParam(value = "name", defaultValue = "World") String name, @RequestParam(value = "delay") long delay);
+    Greet greet(@RequestParam(value = "name", defaultValue = "World") String name, @RequestParam(value = "delay") long delay, @RequestParam(value = "failIn") String failIn);
 }

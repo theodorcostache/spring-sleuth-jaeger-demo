@@ -21,6 +21,9 @@ public class GreetController {
     @Value("${upstream.url}")
     private String serviceUrl;
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
     @Autowired
     public GreetController(GreetingProxy feignClient) {
         this.feignClient = feignClient;
@@ -28,26 +31,28 @@ public class GreetController {
 
     @RequestMapping("/greet")
     public Greet get(@RequestParam(value = "name", defaultValue = "World") String name,
-                     @RequestParam(value = "delay", defaultValue = "100") long delay)
+                     @RequestParam(value = "delay", defaultValue = "100") long delay,
+                     @RequestParam(value = "failIn", defaultValue = "") String failIn)
             throws InterruptedException {
 
         logger.info("Incoming call. Processing...");
         logger.info("Simulating some work...");
         Thread.sleep(delay);
-        generateRandomError();
+
+        if (failIn.equals(applicationName)){
+            methodThatFails();
+        }
 
         if (serviceUrl != null) {
             logger.info("Using service as proxy and delegating the call");
-            return feignClient.greet(name, delay);
+            return feignClient.greet(name, delay, failIn);
         } else {
             logger.info("Proxy disabled, returning content directly");
             return new Greet(UUID.randomUUID().toString(), String.format(template, name));
         }
     }
 
-    private void generateRandomError() {
-        if (Math.round(Math.random() * 10) % 5 == 0) {
-            throw new RuntimeException("Random fail");
-        }
+    private void methodThatFails() {
+        throw new RuntimeException("Random fail");
     }
 }

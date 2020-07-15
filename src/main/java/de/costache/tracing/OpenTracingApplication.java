@@ -11,5 +11,4 @@ public class OpenTracingApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(OpenTracingApplication.class, args);
 	}
-
 }
